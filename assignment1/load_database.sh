@@ -9,4 +9,7 @@ else
 	filename="500000 Records.csv"
 fi
 
+# find the max length for each column
+# assume that empID is the first column
+# read the first line to check the number of columns
 
