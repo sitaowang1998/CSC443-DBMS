@@ -1,5 +1,6 @@
 import os
 import sys
+imoprt sqlite3
 
 def find_max_length(fileName):
     """
@@ -19,7 +20,19 @@ def find_max_length(fileName):
         max_length = map(min, max_length, counts)
         line = file.readline()
 
+    file.close()
+
     return (columns, max_length)
+
+
+def create_database(columns, max_length, fileName, page_size, index=False, clustered=False):
+    """
+    Create a database with columns and max_length, load the csv file to database.
+    If index is true, create index on the first cloumn, which should be "Emp Id"
+    """
+    
+
+    return
 
 
 # start of main
