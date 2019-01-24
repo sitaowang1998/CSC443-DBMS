@@ -1,6 +1,6 @@
 import os
 import sys
-imoprt sqlite3
+import sqlite3
 
 def find_max_length(fileName):
     """
@@ -20,19 +20,29 @@ def find_max_length(fileName):
         max_length = map(min, max_length, counts)
         line = file.readline()
 
-    file.close()
+    file.close() 
 
     return (columns, max_length)
 
 
-def create_database(columns, max_length, fileName, page_size, index=False, clustered=False):
+def create_database(columns, max_length, page_size, scheme="Employee", index=False, clustered=False):
     """
-    Create a database with columns and max_length, load the csv file to database.
-    If index is true, create index on the first cloumn, which should be "Emp Id"
+    Create a database with columns and max_length and set the scheme.
+    If index is true, create index on the first cloumn, which should be "Emp Id".
+    Return the cursor.
     """
     
+    dbName = str(page_size)
+    if index:
+        dbName = ("" if clustered else "un") + "clustered"
+    dbName = dbName + ".db"
 
-    return
+    conn = sqlite3.connect(dbName)
+    c = conn.cursor()
+
+    
+
+    return c
 
 
 # start of main
