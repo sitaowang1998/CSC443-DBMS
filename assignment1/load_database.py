@@ -27,7 +27,7 @@ def find_max_length(fileName):
 
 def create_database(columns, max_length, page_size, scheme="Employee", index=False, clustered=False):
     """
-    Create a database with columns and max_length and set the scheme.
+    Create a database with columns and max_length and set the schema.
     If index is true, create index on the first cloumn, which should be "Emp Id".
     Return the cursor.
     """
@@ -40,7 +40,15 @@ def create_database(columns, max_length, page_size, scheme="Employee", index=Fal
     conn = sqlite3.connect(dbName)
     c = conn.cursor()
 
+    # Set the page size
+    c.execute("PRAGMA page_size = " + str(page_size))
+
+    # Create the schema
+    schema = "CREATE TALBE Employee("
+
     
+
+    schema = schema + ")"
 
     return c
 
