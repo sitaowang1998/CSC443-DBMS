@@ -44,6 +44,9 @@ def create_database(columns, max_length, page_size=4096, scheme="Employee", inde
     # Set the page size
     c.execute("PRAGMA page_size = " + str(page_size))
 
+    # Drop the table if exists
+    c.execute("DROP TABLE IF EXISTS Employee")
+
     # Create the schema
     schema = "CREATE TABLE Employee ("
 
@@ -57,12 +60,22 @@ def create_database(columns, max_length, page_size=4096, scheme="Employee", inde
         # EmpId has INT
         if name == "EmpID":
             attType = "INT"
+            if index:
+                attType = attType + " PRIMARY KEY"
 
         schema = schema + name + " " + attType + ","
 
     schema = schema[:-1] + ")"
 
+    # If need to create clustered index 
+    if index and clustered:
+        schema = schema + " WITHOUT ROWID"
+
     c.execute(schema)
+
+    # Create index explicitly
+    if index:
+        c.execute("CREATE INDEX empid_index ON Employee(EmpID)")
 
     return c
 
@@ -79,6 +92,5 @@ if __name__ == "__main__":
     
     (columns, max_length) = find_max_length(fileName)
 
-    create_database(columns, max_length)
 
 
