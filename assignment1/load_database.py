@@ -1,6 +1,7 @@
 import os
 import sys
 import sqlite3
+import re
 
 def find_max_length(fileName):
     """
@@ -17,7 +18,7 @@ def find_max_length(fileName):
     line = file.readline()
     while line:
         counts = map(lambda item: len(item), line.split(','))
-        max_length = map(min, max_length, counts)
+        max_length = map(max, max_length, counts)
         line = file.readline()
 
     file.close() 
@@ -25,7 +26,7 @@ def find_max_length(fileName):
     return (columns, max_length)
 
 
-def create_database(columns, max_length, page_size, scheme="Employee", index=False, clustered=False):
+def create_database(columns, max_length, page_size=4096, scheme="Employee", index=False, clustered=False):
     """
     Create a database with columns and max_length and set the schema.
     If index is true, create index on the first cloumn, which should be "Emp Id".
@@ -44,11 +45,24 @@ def create_database(columns, max_length, page_size, scheme="Employee", index=Fal
     c.execute("PRAGMA page_size = " + str(page_size))
 
     # Create the schema
-    schema = "CREATE TALBE Employee("
+    schema = "CREATE TABLE Employee ("
 
-    
+    regex = re.compile('[^a-zA-Z]')
+    for i in range(len(columns)):
+        column = columns[i]
+        length = max_length[i]
+        name = regex.sub("", column)
 
-    schema = schema + ")"
+        attType = "CHAR(" + str(length)+")"
+        # EmpId has INT
+        if name == "EmpID":
+            attType = "INT"
+
+        schema = schema + name + " " + attType + ","
+
+    schema = schema[:-1] + ")"
+
+    c.execute(schema)
 
     return c
 
@@ -63,4 +77,8 @@ if __name__ == "__main__":
     elif len(sys.argv) == 2:
         fileName = sys.argv[1]
     
+    (columns, max_length) = find_max_length(fileName)
+
+    create_database(columns, max_length)
+
 
