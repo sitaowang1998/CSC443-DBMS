@@ -1,27 +1,23 @@
 import os
 import sys
 import sqlite3
+import csv
 import re
 
 def find_max_length(fileName):
     """
     Find the max length of each column in a csv file.
     """
-    f = open(fileName)
+    with open(fileName, 'r') as f:
+        reader = csv.reader(f)
 
-    # Read the first line to get the number of columns
-    line = f.readline()
-    columns = line.split(',')
-    max_length = [0] * len(columns)
+        # Read the first line to get the number of columns
+        columns = reader.next()
+        max_length = [0] * len(columns)
 
-    # Scan the rest of file to find the max length
-    line = f.readline()
-    while line:
-        counts = map(lambda item: len(item), line.strip('\r\n').split(','))
-        max_length = map(max, max_length, counts)
-        line = f.readline()
-
-    f.close() 
+        # Scan the rest of file to find the max length
+        for row in reader:
+            max_length = map(max, max_length, map(len, row))
 
     return (columns, max_length)
 
@@ -57,9 +53,9 @@ def create_database(columns, max_length, page_size=4096, scheme="Employee", inde
         name = regex.sub("", column)
 
         attType = "CHAR(" + str(length)+")"
-        # EmpId has INT
+        # EmpId has type INTEGER
         if name == "EmpID":
-            attType = "INT"
+            attType = "INTEGER"
             if index:
                 attType = attType + " PRIMARY KEY"
 
@@ -73,42 +69,31 @@ def create_database(columns, max_length, page_size=4096, scheme="Employee", inde
 
     c.execute(schema)
 
-    # Create index explicitly
-    if index:
-        c.execute("CREATE INDEX empid_index ON Employee(EmpID)")
-
     return c
 
-def load_file(cursors, max_length, fileName):
+def load_file(cursor, max_length, fileName):
     """
     Load the csv file into the databases.
     """
 
-    f = open(fileName)
-    # Skip the first line
-    line = f.readline()
+    with open(fileName, 'r') as f:
+        reader = csv.reader(f)
+        # Skip the first line
+        reader.next()
 
-    # Scan the file to insert to table
-    line = f.readline()
-    while line:
-        words = line.strip('\r\n').split(',')
-        empID = int(words[0])
-        fixed_length = ['"' + words[i] + ' ' * (max_length[i] - len(words[i])) + '"' for i in range(len(words))]
-        insert = "INSERT INTO Employee VALUES ("
-        insert = insert +  str(empID) + ','  + ','.join(fixed_length[1:])
-        insert = insert + ")"
+        idSet = set()
 
-        for c in cursors:
-            # Check if the empID is already in table
-            c.execute("SELECT * FROM Employee WHERE EmpID = ?", (empID,))
-            
-            # Insert if empID not it table
-            if (len(c.fetchall()) == 0):
-                c.execute(insert)
+        # Scan the file to insert to table
+        for row in reader:
+            empID = int(row[0])
+            if empID not in idSet:
+                idSet.add(empID)
+                fixed_length = ['"' + row[i] + ' ' * (max_length[i] - len(row[i])) + '"' for i in range(len(row))]
+                insert = "INSERT INTO Employee VALUES ("
+                insert = insert +  str(empID) + ','  + ','.join(fixed_length[1:])
+                insert = insert + ")"
 
-        line = f.readline()
-
-    f.close()
+                cursor.execute(insert)
 
 # start of main
 if __name__ == "__main__":
@@ -131,7 +116,23 @@ if __name__ == "__main__":
     # 4KB with clustered index
     c4 = create_database(columns, max_length, index=True, clustered=True)
     
-    load_file([c1, c2, c3, c4], max_length, fileName)
+    print("Loading 4kB without index")
+    load_file(c1, max_length, fileName)
+    print("Commiting 4kB without index")
+    c1.connection.commit()
+    print("Loading 16KB without index")
+    load_file(c2, max_length, fileName)
+    print("Commiting 16kB without index")
+    c2.connection.commit()
+    print("Loading 4kB with unclustered index")
+    load_file(c3, max_length, fileName)
+    print("Commiting 4kB with unclustered index")
+    c3.connection.commit()
+    print("Loading 4kB with clustered index")
+    load_file(c4, max_length, fileName)
+    print("Commiting 4kB with clustered index")
+    c4.connection.commit()
+    
 
 
 
