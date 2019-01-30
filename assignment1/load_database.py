@@ -69,6 +69,9 @@ def create_database(columns, max_length, page_size=4096, scheme="Employee", inde
 
     c.execute(schema)
 
+    if index:
+        c.execute("CREATE INDEX EmpID_INDEX ON Employee(EmpID)")
+
     return c
 
 def load_file(cursor, max_length, fileName):
