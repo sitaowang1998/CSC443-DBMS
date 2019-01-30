@@ -1,6 +1,6 @@
-from helper import *
+from helper import Reader
 
-class DatabaseHeader():
+class DHeader():
     """
     DatabaseHeader contains the information of whole database by reading the database header, i.e. the first 100 bytes of the first page.
     """
@@ -12,11 +12,10 @@ class DatabaseHeader():
         db.seek(0)
 
         # Check the magic header string
-        self.magic = map(ord, db.read(16))
-        if self.magic != [0x53, 0x51, 0x4c, 0x69, 0x74, 0x65, 0x20, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x20, 0x33, 0x00]:
+        if db.read(16) != bytes.fromhex("53 51 4c 69 74 65 20 66 6f 72 6d 61 74 20 33 00"):
             raise RuntimeError("Database magic header string does not match")
         
-        self.page_size = read_big_endian(db, 2)
+        self.page_size = int.from_bytes(db.read(2), byteorder='big', signed=False)
     
     def get_page_size(self):
         return self.page_size
@@ -25,4 +24,5 @@ class DatabaseHeader():
 if __name__ == "__main__":
 
     db = open("4096.db", 'rb')
-    dheader = DatabaseHeader(db)
+    dheader = DHeader(db)
+    print(dheader.get_page_size())
