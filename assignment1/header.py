@@ -1,6 +1,6 @@
 from helper import Reader
 
-class DHeader():
+class DHeader:
     """
     DatabaseHeader contains the information of whole database by reading the database header, i.e. the first 100 bytes of the first page.
     """
@@ -26,3 +26,4 @@ if __name__ == "__main__":
     db = open("4096.db", 'rb')
     dheader = DHeader(db)
     print(dheader.get_page_size())
+    db.close()
