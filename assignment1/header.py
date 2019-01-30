@@ -16,14 +16,11 @@ class DHeader:
             raise RuntimeError("Database magic header string does not match")
         
         self.page_size = int.from_bytes(db.read(2), byteorder='big', signed=False)
-    
-    def get_page_size(self):
-        return self.page_size
 
 # main for testing
 if __name__ == "__main__":
 
     db = open("4096.db", 'rb')
     dheader = DHeader(db)
-    print(dheader.get_page_size())
+    print(dheader.page_size)
     db.close()
