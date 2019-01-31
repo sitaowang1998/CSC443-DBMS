@@ -1,3 +1,5 @@
+import os
+
 from header import DHeader
 
 page_read_number = 0
@@ -23,8 +25,20 @@ class BTreePage(Page):
 
     def seek_content_area(self, db):
         self.seek(db)
-        db.seek(self.content_area, 'SEEK_CUR')
+        db.seek(self.content_area, os.SEEK_CUR)
 
+class FirstPage(Page):
+
+    def __init__(self, dheader, db):
+        super().__init__(1, dheader)
+        db.seek(100)
+        self.type = int.from_bytes(db.read(1), byteorder='big', signed=False)
+        self.first_free_block = int.from_bytes(db.read(2), byteorder='big', signed=False)
+        self.cell_num = int.from_bytes(db.read(2), byteorder='big', signed=False)
+        self.content_area = int.from_bytes(db.read(2), byteorder='big', signed=False)
+        
+    def seek_content_area(self, db):
+        db.seek(self.content_area)
 
 # main for testing
 if __name__ == "__main__":
@@ -33,6 +47,12 @@ if __name__ == "__main__":
     dheader = DHeader(db)
     page = BTreePage(3, dheader, db)
     print(page.content_area)
+    page.seek_content_area(db)
+    print(db.read(20))
+    firstPage = FirstPage(dheader, db)
+    print(firstPage.content_area)
+    firstPage.seek_content_area(db)
+    print(db.read(20))
     db.close()
             
 
