@@ -22,10 +22,17 @@ class BTreePage(Page):
         self.first_free_block = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.cell_num = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.content_area = int.from_bytes(db.read(2), byteorder='big', signed=False)
+        db.seek(1, os.SEEK_CUR)
+        self.cell_pointer_array = 8
+        if self.type == 0x02 or self.type == 0x05:
+            self.cell_pointer_array = 12
+            self.rightmost_pointer = int.from_bytes(db.read(2), byteorder='big', signed=False) 
 
     def seek_content_area(self, db):
         self.seek(db)
         db.seek(self.content_area, os.SEEK_CUR)
+    
+    
 
 class FirstPage(Page):
 
@@ -36,6 +43,11 @@ class FirstPage(Page):
         self.first_free_block = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.cell_num = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.content_area = int.from_bytes(db.read(2), byteorder='big', signed=False)
+        db.seek(1, os.SEEK_CUR)
+        self.cell_pointer_array = 108
+        if self.type == 0x02 or self.type == 0x05:
+            self.cell_pointer_array = 112
+            self.rightmost_pointer = int.from_bytes(db.read(2), byteorder='big', signed=False) 
         
     def seek_content_area(self, db):
         db.seek(self.content_area)
