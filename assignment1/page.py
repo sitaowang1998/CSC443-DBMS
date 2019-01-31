@@ -32,6 +32,9 @@ class BTreePage(Page):
         self.seek(db)
         db.seek(self.content_area, os.SEEK_CUR)
     
+    def seek_cell_pointer(self, db):
+        self.seek(db)
+        db.seek(self.cell_pointer_array, os.SEEK_CUR)
     
 
 class FirstPage(Page):
@@ -51,6 +54,9 @@ class FirstPage(Page):
         
     def seek_content_area(self, db):
         db.seek(self.content_area)
+        
+    def seek_cell_pointer(self, db):
+        db.seek(self.cell_pointer_array)
 
 # main for testing
 if __name__ == "__main__":
