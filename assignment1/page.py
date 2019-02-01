@@ -1,4 +1,5 @@
 import os
+import abc
 
 from header import DHeader
 
@@ -12,6 +13,14 @@ class Page:
 
     def seek(self, db):
         db.seek((self.page_no - 1) * self.dheader.page_size)
+
+    @abc.abstractmethod
+    def seek_content_area(self, db):
+        return
+    
+    @abc.abstractmethod
+    def seek_cell_pointer(self, db):
+        return
 
 class BTreePage(Page):
     
@@ -63,7 +72,7 @@ if __name__ == "__main__":
 
     db = open("4096.db", 'rb')
     dheader = DHeader(db)
-    page = BTreePage(2, dheader, db)
+    page = BTreePage(3, dheader, db)
     print(page.content_area)
     print(hex(page.type))
     page.seek_content_area(db)
