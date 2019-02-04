@@ -16,6 +16,8 @@ class DHeader:
             raise RuntimeError("Database magic header string does not match")
         
         self.page_size = int.from_bytes(db.read(2), byteorder='big', signed=False)
+        db.seek(20)
+        self.reserved_size = int.from_bytes(db.read(1), byteorder='big', signed=False)
 
 # main for testing
 if __name__ == "__main__":
