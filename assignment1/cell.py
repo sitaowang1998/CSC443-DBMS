@@ -47,3 +47,39 @@ class TableLeafCell(Cell):
             self.payload = db.read(self.payload_size)
 
     
+class RecordFormat:
+
+    @staticmethod
+    def serial_type_to_size(serial_type):
+        serial_type_size = [0, 1, 2, 3, 4, 6, 8, 8, 0, 0]
+        if serial_type < 10:
+            return serial_type_size[serial_type]
+        if serial_type == 10 or serial_type == 11:
+            return None
+        if serial_type >= 12 and serial_type % 2 == 0:
+            return int((serial_type - 12) / 2)
+        if serial_type >= 13 and serial_type % 2 == 1:
+            return int((serial_type - 13) / 2)
+
+
+    def __init__(self, barray):
+        self.header_size, offset = Reader.read_varint_string(barray)
+        self.serial_types = []
+        while offset < self.header_size:
+            serialType, newOffset = Reader.read_varint_string(barray[offset:])
+            self.serial_types.append(serialType)
+            offset = offset + newOffset
+        self.column_sizes = [RecordFormat.serial_type_to_size(serial_type) for serial_type in self.serial_types]
+        self.record = []
+        offset = self.header_size
+        for i in range(len(self.column_sizes)):
+            self.record.append(barray[offset : offset + self.column_sizes[i]])
+            offset = offset + self.column_sizes[i]
+
+# main for testing
+if __name__ == "__main__":
+    
+    barray = b"&\x03\x17#\x0f'\x0fW?='!#\x17\x11!\x11\x11\x15\x11\x1f\x13\x11\x1f\x13\x17\x19\x13#%A9A\x11\x17\x1f++\r\x14{Ms.  Hermila    JSuhr         Fhermila.suhr@gmail.com               Todd Suhr                Cathrine Suhr           Hinojosa     9/4/1992  04:29:56 AM24.91579/9/2014  Q3H220149 SeptemberSep9 Tuesday  Tue2.88 16899112%275-17-8844479-539-4593Peach Orchard             Clay                  Peach Orchard             AR72453South    hjsuhr         oZ%{<6wN!A     "
+    r = RecordFormat(barray)
+    print(r.header_size, r.column_sizes)
+    print(r.record)
