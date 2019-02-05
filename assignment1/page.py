@@ -2,7 +2,7 @@ import os
 import abc
 
 from header import DHeader
-from cell import CellPointer, CellPointerArray
+from cell import CellPointer, CellPointerArray, Cell, TableLeafCell
 
 page_read_number = 0
 
@@ -86,7 +86,10 @@ if __name__ == "__main__":
     print(hex(page.type))
     print(page.cell_pointer_array)
     page.seek_content_area(db)
-    print(db.read(20))
+    page.seek(db)
+    db.seek(page.cell_pointer_array.cell_pointer_array[0].offset, os.SEEK_CUR)
+    cell = TableLeafCell(page.type, db, page.dheader)
+    print(cell.row_id, cell.payload_size, cell.payload)
     firstPage = FirstPage(dheader, db)
     print(firstPage.content_area_offset)
     print(hex(firstPage.type))
