@@ -31,6 +31,8 @@ class Cell:
         self.cell = None
         if self.type == 0x0d:
             self.cell = TableLeafCell(db, self.dheader)
+        if self.type == 0x05:
+            self.cell = TableInteriorCell(db)
 
 class TableLeafCell:
 
@@ -52,8 +54,8 @@ class TableLeafCell:
 
 class TableInteriorCell:
 
-    def __init__(self, db, dheader):
-        self.left_child_page_no = int.from_bytes(db.read(4), byteorder='big', signed=False)
+    def __init__(self, db):
+        self.page_no = int.from_bytes(db.read(4), byteorder='big', signed=False)
         self.rowid = Reader.read_varint(db)
     
 class Record:
