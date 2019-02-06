@@ -57,6 +57,23 @@ class TableInteriorCell:
     def __init__(self, db):
         self.page_no = int.from_bytes(db.read(4), byteorder='big', signed=False)
         self.rowid = Reader.read_varint(db)
+
+class IndexLeafCell:
+
+    def __init__(self, db, dheader):
+        self.payload_size = Reader.read_varint(db)
+        U = dheader.page_size - dheader.reserved_size
+        X = ((U-12)*32/255)-23
+        M = ((U-12)*32/255)-23
+        K = M+((self.payload_size-M)%(U-4))
+        if self.payload_size >= X:
+            if K <= X:
+                self.payload = db.read(K)
+            else:
+                self.payload = db.read(M)
+            self.first_overflow = int.from_bytes(db.read(4), byteorder='big', signed=False)
+        else:
+            self.payload = db.read(self.payload_size)
     
 class Record:
 
