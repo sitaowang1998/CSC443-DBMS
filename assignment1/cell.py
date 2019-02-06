@@ -70,7 +70,7 @@ class Record:
             print(byte)
             return int.from_bytes(byte, byteorder='big', signed=True)
         if serial_type == 7:
-            return struct.unpack('d', byte)
+            return struct.unpack('>d', byte)
         if serial_type == 8:
             return 0
         if serial_type == 9:
