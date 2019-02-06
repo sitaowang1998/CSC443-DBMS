@@ -25,13 +25,16 @@ class CellPointerArray:
 
 class Cell:
 
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, page, db):
+        self.type = page.type
+        self.dheader = page.dheader
+        self.cell = None
+        if self.type == 0x0d:
+            self.cell = TableLeafCell(db, self.dheader)
 
-class TableLeafCell(Cell):
+class TableLeafCell:
 
-    def __init__(self, type, db, dheader):
-        super().__init__(type)
+    def __init__(self, db, dheader):
         self.payload_size = Reader.read_varint(db)
         self.row_id = Reader.read_varint(db)
         U = dheader.page_size - dheader.reserved_size
@@ -47,6 +50,11 @@ class TableLeafCell(Cell):
         else:
             self.payload = db.read(self.payload_size)
 
+class TableInteriorCell:
+
+    def __init__(self, db, dheader):
+        self.left_child_page_no = int.from_bytes(db.read(4), byteorder='big', signed=False)
+        self.rowid = Reader.read_varint(db)
     
 class Record:
 
