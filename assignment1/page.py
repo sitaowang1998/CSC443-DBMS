@@ -88,7 +88,7 @@ if __name__ == "__main__":
     page.seek_content_area(db)
     page.seek(db)
     db.seek(page.cell_pointer_array.cell_pointer_array[0].offset, os.SEEK_CUR)
-    cell = TableLeafCell(page.type, db, page.dheader)
+    cell = TableLeafCell(db, page.dheader)
     print(cell.row_id, cell.payload_size, cell.payload)
     firstPage = FirstPage(dheader, db)
     print(firstPage.content_area_offset)
