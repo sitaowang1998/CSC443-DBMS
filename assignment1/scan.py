@@ -12,8 +12,20 @@ class TableTreeScanner:
         self.dheader = dheader
         self.root_page_no = root_page_no
         self.db = db
+
         # A stack that store pair of page number and the current index of pointer
-        self.status = [(root_page_no, -1)]
+        self.path = []
+        # Initialize the path to point to start
+        page_no = root_page_no
+        page = BTreePage(root_page_no, dheader, db)
+        cell = page.read_cell(db, 0)
+        while page.type != 0x0d:
+            self.path.append((page_no, 0))
+            page_no = cell.cell.page_no
+            page = BTreePage(page_no, dheader, db)
+            cell = page.read_cell(db, 0)
+        self.current_page = page
+        self.path.append((page_no, -1))
 
     def __iter__(self):
         return self
