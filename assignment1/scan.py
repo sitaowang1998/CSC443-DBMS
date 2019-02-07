@@ -32,10 +32,38 @@ class TableTreeScanner:
 
     def __next__(self):
         self.current_index = self.current_index + 1
+        # If the leaf page has another cell, read it and return
         if self.current_index < self.current_page.cell_num:
-            return Record(self.current_page.read_cell(self.db, self.current_index))
+            return Record(self.current_page.read_cell(self.db, self.current_index).cell.payload)
         
 
+        page_no, index = self.path.pop()
+        page = BTreePage(page_no, self.dheader, self.db)
+        index = index + 1
+
+        # Trace up the path to find the first node that has next child
+        while page.cell_num > index:
+            # If path is empty, i.e. whole tree is traversed, raise StopIteration
+            if len(self.path) == 0:
+                raise StopIteration
+            page_no, index = self.path.pop()
+            page = BTreePage(page_no, self.dheader, self.db)
+            index = index + 1
+        
+        # Build the rest of path by reading to leaf
+        while page.type != 0x0d:
+            self.path.append((page_no, index))
+            if index == page.cell_num:
+                page_no = page.rightmost_pointer
+            else:
+                page_no = page.read_cell(self.db, index).cell.page_no
+            page = BTreePage(page_no, self.dheader, self.db)
+            index = 0
+        
+        # Read the first cell of leaf and return
+        self.current_page = page
+        self.current_index = 0
+        return Record(page.read_cell(self.db, 0).cell.payload)
 
 
 # main for testing
