@@ -71,10 +71,14 @@ if __name__ == "__main__":
     fileName = "4096.db"
     db = open(fileName, 'rb')
     dheader = DHeader(db)
+    firstPage = FirstPage(dheader, db)
+    r = Record(firstPage.read_cell(db, 0).cell.payload)
+    print(r.record)
+    print(hex(BTreePage(2, dheader, db).type))
     scanner = TableTreeScanner(dheader, 2, db)
     count = 0
     for r in scanner:
         count = count + 1
+        # print(r.record)
     print(count)
-
     
