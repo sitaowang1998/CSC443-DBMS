@@ -25,12 +25,15 @@ class TableTreeScanner:
             page = BTreePage(page_no, dheader, db)
             cell = page.read_cell(db, 0)
         self.current_page = page
-        self.path.append((page_no, -1))
+        self.current_index = -1
 
     def __iter__(self):
         return self
 
     def __next__(self):
+        self.current_index = self.current_index + 1
+        if self.current_index < self.current_page.cell_num:
+            return Record(self.current_page.read_cell(self.db, self.current_index))
         
 
 
