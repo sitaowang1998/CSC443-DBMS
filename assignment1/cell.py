@@ -15,13 +15,6 @@ class CellPointer:
     def __str__(self):
         return str(self.offset)
 
-class CellPointerArray:
-
-    def __init__(self, db, cell_num):
-        self.cell_pointer_array = [CellPointer(db) for _ in range(cell_num)]
-
-    def __str__(self):
-        return str([str(cell_pointer) for cell_pointer in self.cell_pointer_array])
 
 class Cell:
 

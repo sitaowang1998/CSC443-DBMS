@@ -2,7 +2,7 @@ import os
 import abc
 
 from header import DHeader
-from cell import CellPointer, CellPointerArray, Cell, TableLeafCell
+from cell import CellPointer, Cell, TableLeafCell
 
 page_read_number = 0
 
@@ -38,12 +38,6 @@ class BTreePage(Page):
             self.cell_pointer_array_offset = 12
             self.rightmost_pointer = int.from_bytes(db.read(4), byteorder='big', signed=False) 
         
-        # Construct the cell pointer array
-        self.seek(db)
-        db.seek(self.cell_pointer_array_offset, os.SEEK_CUR)
-        self.cell_pointer_array = CellPointerArray(db, self.cell_num)
-        
-
     def seek_content_area(self, db):
         self.seek(db)
         db.seek(self.content_area_offset, os.SEEK_CUR)
@@ -64,10 +58,6 @@ class FirstPage(Page):
         self.content_area_offset = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.cell_pointer_array_offset = 108
         
-        # Construct the cell pointer array
-        self.seek(db)
-        db.seek(self.cell_pointer_array_offset, os.SEEK_CUR)
-        self.cell_pointer_array = CellPointerArray(db, self.cell_num)
 
     def seek_content_area(self, db):
         db.seek(self.content_area_offset)
@@ -83,17 +73,14 @@ if __name__ == "__main__":
     page = BTreePage(2, dheader, db)
     print(page.content_area_offset)
     print(hex(page.type))
-    print(page.cell_pointer_array)
     print(page.rightmost_pointer)
     page.seek_content_area(db)
     page.seek(db)
-    db.seek(page.cell_pointer_array.cell_pointer_array[0].offset, os.SEEK_CUR)
     cell = Cell(page, db)
     print(cell.cell.page_no, cell.cell.rowid)
     firstPage = FirstPage(dheader, db)
     print(firstPage.content_area_offset)
     print(hex(firstPage.type))
-    print(firstPage.cell_pointer_array)
     firstPage.seek_content_area(db)
     print(db.read(20))
     db.close()
