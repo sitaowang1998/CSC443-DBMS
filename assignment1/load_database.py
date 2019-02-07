@@ -12,13 +12,14 @@ def find_max_length(fileName):
         reader = csv.reader(f)
 
         # Read the first line to get the number of columns
-        columns = reader.next()
+        columns = reader.__next__()
         max_length = [0] * len(columns)
 
         # Scan the rest of file to find the max length
         for row in reader:
-            max_length = map(max, max_length, map(len, row))
-
+            for i in range(len(max_length)):
+                max_length[i] = max(max_length[i], len(row[i]))
+    
     return (columns, max_length)
 
 
@@ -79,7 +80,7 @@ def load_file(cursor, max_length, fileName):
     with open(fileName, 'r') as f:
         reader = csv.reader(f)
         # Skip the first line
-        reader.next()
+        reader.__next__()
 
         idSet = set()
 
