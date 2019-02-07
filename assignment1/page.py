@@ -46,6 +46,19 @@ class BTreePage(Page):
         self.seek(db)
         db.seek(self.cell_pointer_array_offset, os.SEEK_CUR)
     
+    def read_cell(self, db, index):
+        if index >= self.cell_num or index < 0:
+            raise IndexError
+        
+        # Read offset from cell pointer
+        self.seek_cell_pointer(db)
+        db.seek(2 * index, os.SEEK_CUR)
+        offset = CellPointer(db).offset
+        # Read cell based on offset
+        self.seek(db)
+        db.seek(offset, os.SEEK_CUR)
+        return Cell(self, db)
+
 
 class FirstPage(Page):
 
