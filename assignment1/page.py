@@ -78,24 +78,37 @@ class FirstPage(Page):
     def seek_cell_pointer(self, db):
         db.seek(self.cell_pointer_array_offset)
 
+    def read_cell(self, db, index):
+        if index >= self.cell_num or index < 0:
+            raise IndexError
+        
+        # Read offset from cell pointer
+        self.seek_cell_pointer(db)
+        db.seek(2 * index, os.SEEK_CUR)
+        offset = CellPointer(db).offset
+        # Read cell based on offset
+        self.seek(db)
+        db.seek(offset, os.SEEK_CUR)
+        return Cell(self, db)
+
+
 # main for testing
 if __name__ == "__main__":
 
-    db = open("4096.db", 'rb')
+    db = open("clustered.db", 'rb')
     dheader = DHeader(db)
     page = BTreePage(2, dheader, db)
     print(page.content_area_offset)
     print(hex(page.type))
-    print(page.rightmost_pointer)
+    # print(page.rightmost_pointer)
     page.seek_content_area(db)
     page.seek(db)
     cell = Cell(page, db)
-    print(cell.cell.page_no, cell.cell.rowid)
+    # print(cell.cell.page_no, cell.cell.rowid)
     firstPage = FirstPage(dheader, db)
     print(firstPage.content_area_offset)
     print(hex(firstPage.type))
-    firstPage.seek_content_area(db)
-    print(db.read(20))
+    print(firstPage.cell_num)
     db.close()
             
 
