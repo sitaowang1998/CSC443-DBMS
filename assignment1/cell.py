@@ -15,7 +15,6 @@ class CellPointer:
     def __str__(self):
         return str(self.offset)
 
-
 class Cell:
 
     def __init__(self, page, db):
@@ -110,7 +109,6 @@ class Record:
         if serial_type == 0:
             return None
         if serial_type >= 1 and serial_type <= 6:
-            print(byte)
             return int.from_bytes(byte, byteorder='big', signed=True)
         if serial_type == 7:
             return struct.unpack('>d', byte)

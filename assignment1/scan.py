@@ -42,7 +42,7 @@ class TableTreeScanner:
         index = index + 1
 
         # Trace up the path to find the first node that has next child
-        while page.cell_num > index:
+        while page.cell_num < index:
             # If path is empty, i.e. whole tree is traversed, raise StopIteration
             if len(self.path) == 0:
                 raise StopIteration
@@ -70,4 +70,11 @@ class TableTreeScanner:
 if __name__ == "__main__":
     fileName = "4096.db"
     db = open(fileName, 'rb')
+    dheader = DHeader(db)
+    scanner = TableTreeScanner(dheader, 2, db)
+    count = 0
+    for r in scanner:
+        count = count + 1
+    print(count)
+
     
