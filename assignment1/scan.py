@@ -34,8 +34,8 @@ class TableTreeScanner:
         self.current_index = self.current_index + 1
         # If the leaf page has another cell, read it and return
         if self.current_index < self.current_page.cell_num:
-            return Record(self.current_page.read_cell(self.db, self.current_index).cell.payload)
-        
+            cell = self.current_page.read_cell(self.db, self.current_index)
+            return (cell.cell.rowid, Record(cell.cell.payload))
 
         page_no, index = self.path.pop()
         page = BTreePage(page_no, self.dheader, self.db)
@@ -63,8 +63,8 @@ class TableTreeScanner:
         # Read the first cell of leaf and return
         self.current_page = page
         self.current_index = 0
-        return Record(page.read_cell(self.db, 0).cell.payload)
-
+        cell = self.current_page.read_cell(self.db, self.current_index)
+        return (cell.cell.rowid, Record(cell.cell.payload))
 
 class IndexTreeScanner:
     """
@@ -96,7 +96,7 @@ class IndexTreeScanner:
         self.current_index = self.current_index + 1
         # If at a leaf and there is records left in the leaf, return it
         if self.current_page.type == 0x0a and self.current_index < self.current_page.cell_num:
-                return Record(self.current_page.read_cell(self.db, self.current_index).cell.payload)
+            return (None, Record(self.current_page.read_cell(self.db, self.current_index).cell.payload))
         # If Reading a record from interior and there is a right pointer, traverse to the leaf
         if self.current_page.type == 0x02 and self.current_index <= self.current_page.cell_num:
             self.path.append((self.current_page.page_no, self.current_index))
@@ -111,7 +111,7 @@ class IndexTreeScanner:
                 page = BTreePage(page_no, self.dheader, self.db)
             self.current_page = page
             self.current_index = 0
-            return Record(self.current_page.read_cell(self.db, self.current_index).cell.payload)
+            return (None, Record(self.current_page.read_cell(self.db, self.current_index).cell.payload))
         
         # Trace up the path to find a interior that is not pointing to rightmost index
         page_no, index = self.path.pop()
@@ -124,7 +124,7 @@ class IndexTreeScanner:
             page = BTreePage(page_no, self.dheader, self.db)
         self.current_page = page
         self.current_index = index
-        return Record(self.current_page.read_cell(self.db, self.current_index).cell.payload)
+        return (None, Record(self.current_page.read_cell(self.db, self.current_index).cell.payload))
 
 def Scanner(page_no, dheader, db):
     page_type = BTreePage(page_no, dheader, db).type
@@ -135,7 +135,7 @@ def Scanner(page_no, dheader, db):
 
 # main for testing
 if __name__ == "__main__":
-    fileName = "16384.db"
+    fileName = "clustered.db"
     db = open(fileName, 'rb')
     dheader = DHeader(db)
     firstPage = FirstPage(dheader, db)
@@ -145,8 +145,8 @@ if __name__ == "__main__":
     print(hex(page.type))
     scanner = Scanner(2, dheader, db)
     count = 0
-    for r in scanner:
+    for (rowid, record) in scanner:
         count = count + 1
-        # print(r.record)
+        # print(rowid, record.record)
     print(count)
     
