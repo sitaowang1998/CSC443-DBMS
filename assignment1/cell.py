@@ -34,7 +34,7 @@ class TableLeafCell:
 
     def __init__(self, db, dheader):
         self.payload_size = Reader.read_varint(db)
-        self.row_id = Reader.read_varint(db)
+        self.rowid = Reader.read_varint(db)
         U = dheader.page_size - dheader.reserved_size
         X = U-35
         M = ((U-12)*32/255)-23
