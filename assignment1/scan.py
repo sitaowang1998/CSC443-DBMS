@@ -126,12 +126,16 @@ class IndexTreeScanner:
         self.current_index = index
         return Record(self.current_page.read_cell(self.db, self.current_index).cell.payload)
 
-                
-            
+def Scanner(page_no, dheader, db):
+    page_type = BTreePage(page_no, dheader, db).type
+    if page_type == 0x0d or page_type == 0x05:
+        return TableTreeScanner(dheader, page_no, db)
+    else:
+        return IndexTreeScanner(dheader, page_no, db)
 
 # main for testing
 if __name__ == "__main__":
-    fileName = "clustered.db"
+    fileName = "16384.db"
     db = open(fileName, 'rb')
     dheader = DHeader(db)
     firstPage = FirstPage(dheader, db)
@@ -139,7 +143,7 @@ if __name__ == "__main__":
     print(r.record)
     page = BTreePage(2, dheader, db)
     print(hex(page.type))
-    scanner = IndexTreeScanner(dheader, 2, db)
+    scanner = Scanner(2, dheader, db)
     count = 0
     for r in scanner:
         count = count + 1
