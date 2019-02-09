@@ -4,7 +4,11 @@ import abc
 from header import DHeader
 from cell import CellPointer, Cell, TableLeafCell
 
-page_read_number = 0
+page_count = 0
+table_interior_count = 0
+talbe_leaf_count = 0
+index_interior_count = 0
+index_leaf_count = 0
 
 class Page:
     
@@ -22,6 +26,19 @@ class Page:
     @abc.abstractmethod
     def seek_cell_pointer(self, db):
         return
+
+    @staticmethod
+    def get_count():
+        return (page_count, table_interior_count, talbe_leaf_count, index_interior_count, index_leaf_count)
+    
+    @staticmethod
+    def clear_count():
+        global page_count, table_interior_count, talbe_leaf_count, index_interior_count, index_leaf_count
+        page_count = 0
+        table_interior_count = 0
+        talbe_leaf_count = 0
+        index_interior_count = 0
+        index_leaf_count = 0
 
 class BTreePage(Page):
     
