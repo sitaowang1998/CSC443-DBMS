@@ -24,11 +24,37 @@ def TableTreeSearch(root_page_no, key, dheader, db):
     for i in range(page.cell_num):
         cell = page.read_cell(db, i)
         if cell.cell.rowid == key:
-            return (cell.cell.rowid, Record(cell.cell.payload).record)
+            return (cell.cell.rowid, Record(cell.cell.payload))
     
     return None
             
-
+def IndexTreeSearch(root_page_no, key, dheader, db):
+    """
+    Search the key in an index b tree. Return None if key not found.
+    """
+    page = BTreePage(root_page_no, dheader, db)
+    while page.type == 0x02:
+        index = 0
+        while index < page.cell_num and Record(page.read_cell(db, index).cell.payload).record[0] < key:
+            index = index + 1
+        
+        if index == page.cell_num:
+            page_no = page.rightmost_pointer
+        else:
+            cell = page.read_cell(db, index)
+            record = Record(cell.cell.payload)
+            if record.record[0] == key:
+                return (None, Record)
+            page_no = cell.cell.page_no
+        page = BTreePage(page_no, dheader, db)
+    
+    for i in range(page.cell_num):
+        cell = page.read_cell(db, i)
+        record = Record(cell.cell.payload)
+        if record.record[0] == key:
+            return (None, record)
+    
+    return None
 
 class BinarySearch:
     """
@@ -59,12 +85,12 @@ class BinarySearch:
 
 # main for testing
 if __name__ == "__main__":
-    fileName = "unclustered.db"
+    fileName = "clustered.db"
     db = open(fileName, 'rb')
     dheader = DHeader(db)
     page = BTreePage(2, dheader, db)
     print(hex(page.type))
 
     key = 181162
-    rowid, record = TableTreeSearch(2, key, dheader, db)
-    print(rowid, record)
+    rowid, record = IndexTreeSearch(2, key, dheader, db)
+    print(rowid, record.record)
