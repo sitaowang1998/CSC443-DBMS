@@ -1,4 +1,4 @@
-from helper import Reader
+from reader import Reader
 
 class DHeader:
     """

@@ -2,7 +2,7 @@ import os
 import struct
 
 from header import DHeader
-from helper import Reader
+from reader import Reader
 
 class CellPointer:
 
