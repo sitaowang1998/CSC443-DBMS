@@ -101,12 +101,86 @@ class TableTreeRange:
         return value
         
 
+class IndexTreeRange:
+    """
+    An interator that loops thorough the records with key in the range.
+    """
 
+    def __init__(self, root_page_no, db, dheader, low, high):
+        self.root_page_no = root_page_no
+        self.db = db
+        self.dheader = dheader
+        self.low = low
+        self.high = high
+        self.path = []
+
+        # Search down the tree
+        page_no = root_page_no
+        page = BTreePage(page_no, dheader, db)
+        while page.type == 0x02:
+            index = 0
+            while index < page.cell_num and Record(page.read_cell(db, index).cell.payload).record[0] < low:
+                index = index + 1
+            
+            if index == page.cell_num:
+                self.path.append((page_no, index))
+                page_no = page.rightmost_pointer
+            elif Record(page.read_cell(db, index).cell.payload).record[0] == low:
+                self.page = page
+                self.index = index
+                return
+            else:
+                self.path.append((page_no, index))
+                page_no = page.read_cell(db, index).cell.page_no
+            
+            page = BTreePage(page_no, dheader, db)
+
+        # Reach a leaf, search for the first element that is in range
+        index = 0
+        while index < page.cell_num and Record(page.read_cell(db, index).cell.payload).record[0] < low:
+                index = index + 1
+        if index < page.cell_num:
+            self.page = page
+            self.index = index
+            return
+        
+        # If all the entries in the leaf is out of range, than search up the tree to find a new entry in interior node
+        page_no, index = self.path.pop()
+        page = BTreePage(page_no, dheader, db)
+        index = index + 1
+        while page.cell_num < index:
+            page_no, index = self.path.pop()
+            page = BTreePage(page_no, dheader, db)
+            index = index + 1
+        
+        if index < page.cell_num:
+            self.page = page
+            self.index = index
+            return
+        
+        # Reach the rightmost pointer in the page, search down to leaf
+        while page.type == 0x02:
+            self.path.append((page_no, index))
+            if index == page.cell_num:
+                page_no = page.rightmost_pointer
+            else:
+                page_no = page.read_cell(self.db, index).cell.page_no
+            page = BTreePage(page_no, self.dheader, self.db)
+            index = 0
+        
+        self.page = page
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        return (None, Record(self.page.read_cell(db, self.index).cell.payload))
 
  
 # main for testing
 if __name__ == "__main__":
-    fileName = "unclustered.db"
+    fileName = "clustered.db"
     print(fileName)
     db = open(fileName, 'rb')
     dheader = DHeader(db)
@@ -114,9 +188,9 @@ if __name__ == "__main__":
     print(hex(page.type))
     low = 171800
     high = 171899
-    range = TableTreeRange(2, db, dheader, low, high)
+    ranger = IndexTreeRange(2, db, dheader, low, high)
     count = 0
-    for rowid, record in range:
+    for rowid, record in ranger:
         print(rowid, record.record)
         count = count + 1
     print(count)
