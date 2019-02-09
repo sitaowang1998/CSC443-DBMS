@@ -101,7 +101,7 @@ class IndexTreeScanner:
         if self.current_page.type == 0x02 and self.current_index <= self.current_page.cell_num:
             self.path.append((self.current_page.page_no, self.current_index))
             if self.current_index < self.current_page.cell_num:
-                page_no = self.current_page.read_cell(db, self.current_index).cell.page_no
+                page_no = self.current_page.read_cell(self.db, self.current_index).cell.page_no
             elif self.current_index == self.current_page.cell_num:
                 page_no = self.current_page.rightmost_pointer
             page = BTreePage(page_no, self.dheader, self.db)
