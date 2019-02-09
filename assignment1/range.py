@@ -175,7 +175,60 @@ class IndexTreeRange:
         return self
     
     def __next__(self):
-        return (None, Record(self.page.read_cell(db, self.index).cell.payload))
+        cell = self.page.read_cell(self.db, self.index)
+        if Record(cell.cell.payload).record[0] > self.high:
+            raise StopIteration
+        value = (None, Record(cell.cell.payload))
+
+        self.index = self.index + 1
+        
+        if self.page.type == 0x02:
+            page_no = self.page.page_no
+            page = self.page
+            index = self.index
+            while page.type == 0x02:
+                self.path.append((page_no, index))
+                if index == page.cell_num:
+                    page_no = page.rightmost_pointer
+                else:
+                    page_no = page.read_cell(self.db, index).cell.page_no
+                page = BTreePage(page_no, self.dheader, self.db)
+                index = 0
+            self.page = page
+            self.index = 0
+
+            return value
+
+        if self.index < self.page.cell_num:
+            return value
+
+        page_no, index = self.path.pop()
+        page = BTreePage(page_no, self.dheader, self.db)
+        while index >= page.cell_num:
+            if len(self.path) == 0:
+                raise StopIteration
+            page_no, index = self.path.pop()
+            page = BTreePage(page_no, self.dheader, self.db)
+        
+        if index < page.cell_num:
+            self.page = page
+            self.index = index
+            return value
+        
+        # Reach the rightmost pointer in the page, search down to leaf
+        while page.type == 0x02:
+            self.path.append((page_no, index))
+            if index == page.cell_num:
+                page_no = page.rightmost_pointer
+            else:
+                page_no = page.read_cell(self.db, index).cell.page_no
+            page = BTreePage(page_no, self.dheader, self.db)
+            index = 0
+        
+        self.page = page
+        self.index = 0
+        return value
+
 
  
 # main for testing
@@ -191,6 +244,6 @@ if __name__ == "__main__":
     ranger = IndexTreeRange(2, db, dheader, low, high)
     count = 0
     for rowid, record in ranger:
-        print(rowid, record.record)
+        # print(rowid, record.record)
         count = count + 1
     print(count)
