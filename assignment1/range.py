@@ -55,7 +55,7 @@ class TableTreeRange:
         self.path.append((page_no, index))
         page = BTreePage(page_no, dheader, db)
         cell = page.read_cell(db, 0)
-        while page.type == 0x02:
+        while page.type == 0x05:
             self.path.append((page_no, 0))
             page_no = cell.cell.page_no
             page = BTreePage(page_no, dheader, db)
@@ -100,7 +100,9 @@ class TableTreeRange:
         self.index = index
         return value
         
-        
+
+
+
  
 # main for testing
 if __name__ == "__main__":
