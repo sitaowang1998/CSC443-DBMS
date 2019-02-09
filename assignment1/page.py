@@ -6,7 +6,7 @@ from cell import CellPointer, Cell, TableLeafCell
 
 page_count = 0
 table_interior_count = 0
-talbe_leaf_count = 0
+table_leaf_count = 0
 index_interior_count = 0
 index_leaf_count = 0
 
@@ -15,6 +15,8 @@ class Page:
     def __init__(self, page_no, dheader):
         self.page_no = page_no
         self.dheader = dheader
+        global page_count
+        page_count = page_count + 1
 
     def seek(self, db):
         db.seek((self.page_no - 1) * self.dheader.page_size)
@@ -29,16 +31,28 @@ class Page:
 
     @staticmethod
     def get_count():
-        return (page_count, table_interior_count, talbe_leaf_count, index_interior_count, index_leaf_count)
+        return (page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count)
     
     @staticmethod
     def clear_count():
-        global page_count, table_interior_count, talbe_leaf_count, index_interior_count, index_leaf_count
+        global page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count
         page_count = 0
         table_interior_count = 0
-        talbe_leaf_count = 0
+        table_leaf_count = 0
         index_interior_count = 0
         index_leaf_count = 0
+    
+    @staticmethod
+    def increment_type_count(page_type):
+        global table_interior_count, table_leaf_count, index_interior_count, index_leaf_count
+        if page_type == 0x0d:
+            table_leaf_count = table_leaf_count + 1
+        elif page_type == 0x05:
+            table_interior_count = table_interior_count + 1
+        elif page_type == 0x0a:
+            index_leaf_count = index_leaf_count + 1
+        elif page_type == 0x02:
+            index_interior_count = index_interior_count + 1
 
 class BTreePage(Page):
     
@@ -46,6 +60,9 @@ class BTreePage(Page):
         super().__init__(page_no, dheader)
         self.seek(db)
         self.type = int.from_bytes(db.read(1), byteorder='big', signed=False)
+
+        Page.increment_type_count(self.type)
+
         self.first_free_block = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.cell_num = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.content_area_offset = int.from_bytes(db.read(2), byteorder='big', signed=False)
@@ -83,6 +100,9 @@ class FirstPage(Page):
         super().__init__(1, dheader)
         db.seek(100)
         self.type = int.from_bytes(db.read(1), byteorder='big', signed=False)
+
+        Page.increment_type_count(self.type)
+
         self.first_free_block = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.cell_num = int.from_bytes(db.read(2), byteorder='big', signed=False)
         self.content_area_offset = int.from_bytes(db.read(2), byteorder='big', signed=False)
