@@ -1,5 +1,6 @@
 import os
 import abc
+import time
 
 from header import DHeader
 from cell import CellPointer, Cell, TableLeafCell
@@ -9,6 +10,7 @@ table_interior_count = 0
 table_leaf_count = 0
 index_interior_count = 0
 index_leaf_count = 0
+time_count = 0
 
 class Page:
     
@@ -34,13 +36,18 @@ class Page:
         return (page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count)
     
     @staticmethod
+    def get_time():
+        return time_count
+
+    @staticmethod
     def clear_count():
-        global page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count
+        global page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count, time_count
         page_count = 0
         table_interior_count = 0
         table_leaf_count = 0
         index_interior_count = 0
         index_leaf_count = 0
+        time_count = 0
     
     @staticmethod
     def increment_type_count(page_type):
@@ -58,7 +65,14 @@ class BTreePage(Page):
     
     def __init__(self, page_no, dheader, db):
         super().__init__(page_no, dheader)
+
+        global time_count
+        start_time = time.time()
         self.seek(db)
+        db.read(dheader.page_size)
+        time_count = time_count + time.time() - start_time
+        self.seek(db)
+
         self.type = int.from_bytes(db.read(1), byteorder='big', signed=False)
 
         Page.increment_type_count(self.type)
@@ -98,6 +112,13 @@ class FirstPage(Page):
 
     def __init__(self, dheader, db):
         super().__init__(1, dheader)
+        
+        global time_count
+        start_time = time.time()
+        db.seek(0)
+        db.read(dheader.page_size)
+        time_count = time_count + time.time() - start_time
+
         db.seek(100)
         self.type = int.from_bytes(db.read(1), byteorder='big', signed=False)
 
