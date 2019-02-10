@@ -62,4 +62,32 @@ if __name__ == "__main__":
     print_time()
     print()
 
+    fileName = "16384.db"
+    print(fileName)
+    db = open(fileName, 'rb')
+    dheader = DHeader(db)
+    root_page_no = get_root_page(dheader, db, "Employee")
+    
+    Page.clear_count()
+    print("=" * 20)
+    print("Finding employee with last name Rowe")
+    find_name(dheader, db, root_page_no, "Rowe")
+    print_count()
+    print_time()
+    print()
 
+    Page.clear_count()
+    print("=" * 20)
+    print("Finding employee with EmpID 181162")
+    find_id(dheader, db, root_page_no, 181162)
+    print_count()
+    print_time()
+    print()
+
+    Page.clear_count()
+    print("=" * 20)
+    print("Finding employee with EmpID between 171800 and 171899")
+    find_id_range(dheader, db, root_page_no, 171800, 171899)
+    print_count()
+    print_time()
+    print()
