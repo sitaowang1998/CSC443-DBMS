@@ -18,7 +18,7 @@ def get_root_page(dheader, db, name):
 
 def print_count():
     page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count = Page.get_count()
-    print("Total pages: {}, talbe interior pages: {}, table leaf pages: {}, index interior pages: {}, index leaf pages: {}"\
+    print("Total pages: {}\n table interior pages: {}, table leaf pages: {}\n index interior pages: {}, index leaf pages: {}"\
         .format(page_count, table_interior_count, table_leaf_count, index_interior_count, index_leaf_count))
 
 def get_entry(rowid, record):

@@ -1,3 +1,4 @@
+rm -f *.db
 python3 load_database.py
 python3 heap.py
 python3 unclustered.py
