@@ -6,9 +6,7 @@ class Record:
     record.
     """
     def __init__(self, data):
-        self.firstName = data[:12].strip(bytearray.fromhex('00')).decode()
-        self.lastName = data[12:26].strip(bytearray.fromhex('00')).decode()
-        self.email = data[26:].strip(bytearray.fromhex('00')).decode()
+        self.data = data
     
     @staticmethod
     def getSize():
@@ -17,15 +15,22 @@ class Record:
         """
         return 64
     
-    def getField(self, index):
+    def __getitem__(self, index):
         """
         Return the field of the record based on the index.
         """
         if index == 0:
-            return self.firstName
+            return self.data[:12].strip(bytearray.fromhex('00')).decode()
         elif index == 1:
-            return self.lastName
+            return self.data[12:26].strip(bytearray.fromhex('00')).decode()
         elif index == 2:
-            return self.email
+            return self.data[26:].strip(bytearray.fromhex('00')).decode()
         else:
             raise IndexError
+    
+    def isEmtpy(self):
+        """
+        Return True if the record is empty, i.e. the three fields are all empty
+        strings, False otherwise.
+        """
+        return self.data == bytearray(64)
