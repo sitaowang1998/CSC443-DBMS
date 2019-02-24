@@ -8,13 +8,15 @@ class Page:
     """
 
     @staticmethod
-    def readPage(db, pNum, pSize):
-        db.seek(pNum * pSize)
+    def readPage(db, pSize, pNum=None):
+        if pNum != None:
+            db.seek(pNum * pSize)
         return db.read(pSize)
     
     @staticmethod
-    def writePage(db, pNum, pSize, data):
-        db.seek(pNum * pSize)
+    def writePage(db, data, pSize, pNum=None):
+        if pNum != None:
+            db.seek(pNum * pSize)
         db.write(data)
 
 class RecordPage:
@@ -24,15 +26,15 @@ class RecordPage:
     """
 
     @staticmethod
-    def readReocrdPage(db, pNum, pSize):
+    def readReocrdPage(db, pSize, pNum=None):
         """
         Return a list of Record in the page.
         """
-        data = Page.readPage(db, pNum, pSize)
+        data = Page.readPage(db, pSize, pNum)
         records = []
-        record_size = Record.getSize
-        for i in range(len(data) / record_size):
-            record = Record(data[record_size * i : record_size * (i + 1) + 1])
+        record_size = Record.getSize()
+        for i in range(int(len(data) / record_size)):
+            record = Record(data[record_size * i : record_size * (i + 1)])
             if not record.isEmtpy():
                 records.append(record)
             else:
@@ -41,7 +43,7 @@ class RecordPage:
         return records
 
     @staticmethod
-    def writeRecordPage(db, pNum, pSize, records):
+    def writeRecordPage(db, records, pSize, pNum=None):
         data = bytearray()
         for r in records:
             data.extend(r.data)
@@ -50,8 +52,9 @@ class RecordPage:
         if size < 0:
             print("Truncate data")
             data = data[:pSize]
-        # IF records too short to fill the whole page, fill with ascii 0
+        # If records too short to fill the whole page, fill with ascii 0
         elif size > 0:
             data.extend(bytes(size))
-        Page.writePage(db, pNum, pSize, data)
+            print("extend data")
+        Page.writePage(db, data, pSize, pNum)
     
