@@ -3,7 +3,7 @@ import math
 import os
 
 from record import Record
-from page import RecordPage
+from page import RecordPage, Page
 
 def sortDB(inDB, outDB, B, pSize, field):
     """
@@ -46,7 +46,6 @@ def sortDB(inDB, outDB, B, pSize, field):
             RecordPage.writeRecordPage(tempFile, page, pSize)
 
     inFile.close()
-    print("total pages: ", totalPages)
 
     sortedSize = 1
     inputFile = tempFile
@@ -107,10 +106,20 @@ def sortDB(inDB, outDB, B, pSize, field):
     if outputFile.name == 'temp':
         os.remove('sort.db')
         os.rename('temp', 'sort.db')
-    
+    os.remove('temp')
+    return passNum
 
 
 
 if __name__ == "__main__":
-    sortDB("names.db", "sort.db", 10, 512, 0)
+
+    for pSize in [512, 1024, 2048]:
+        for B in [3, 10, 20, 50, 100, 200, 500, 1000, 5000, 10000]:
+            Page.clearCount()
+            print("pSize: ", pSize, " B: ", B)
+            outFileName = "sorted_" + str(pSize) + "_" + str(B) + '.db'
+            passCount = sortDB('names.db', outFileName, B, pSize, 1)
+            readCount = Page.getReadCount()
+            writeCount = Page.getWriteCount()
+            print("pass: {} read: {} write: {}".format(str(passCount), str(readCount), str(writeCount)))
 

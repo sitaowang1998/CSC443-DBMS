@@ -2,6 +2,9 @@ import os
 
 from record import Record
 
+writeCount = 0
+readCount = 0
+
 class Page:
     """
     Page provides functions to read and write a page in the database file.
@@ -11,13 +14,33 @@ class Page:
     def readPage(db, pSize, pNum=None):
         if pNum != None:
             db.seek(pNum * pSize)
+        global readCount
+        readCount = readCount + 1
         return db.read(pSize)
     
     @staticmethod
     def writePage(db, data, pSize, pNum=None):
         if pNum != None:
             db.seek(pNum * pSize)
+        global writeCount
+        writeCount = writeCount + 1
         db.write(data)
+    
+    @staticmethod
+    def clearCount():
+        global readCount, writeCount
+        readCount = 0
+        writeCount = 0
+    
+    @staticmethod
+    def getWriteCount():
+        global writeCount
+        return writeCount
+    
+    @staticmethod
+    def getReadCount():
+        global readCount
+        return readCount
 
 class RecordPage:
     """
