@@ -1,0 +1,60 @@
+pSize:  512  B:  3
+pass: 17 read: 1062501 write: 1062500
+pSize:  512  B:  10
+pass: 7 read: 437501 write: 437500
+pSize:  512  B:  20
+pass: 5 read: 312501 write: 312500
+pSize:  512  B:  50
+pass: 4 read: 250001 write: 250000
+pSize:  512  B:  100
+pass: 4 read: 250001 write: 250000
+pSize:  512  B:  200
+pass: 4 read: 250001 write: 250000
+pSize:  512  B:  500
+pass: 3 read: 187501 write: 187500
+pSize:  512  B:  1000
+pass: 3 read: 187501 write: 187500
+pSize:  512  B:  5000
+pass: 3 read: 187501 write: 187500
+pSize:  512  B:  10000
+pass: 3 read: 187501 write: 187500
+pSize:  1024  B:  3
+pass: 16 read: 500001 write: 500000
+pSize:  1024  B:  10
+pass: 6 read: 187501 write: 187500
+pSize:  1024  B:  20
+pass: 5 read: 156251 write: 156250
+pSize:  1024  B:  50
+pass: 4 read: 125001 write: 125000
+pSize:  1024  B:  100
+pass: 4 read: 125001 write: 125000
+pSize:  1024  B:  200
+pass: 3 read: 93751 write: 93750
+pSize:  1024  B:  500
+pass: 3 read: 93751 write: 93750
+pSize:  1024  B:  1000
+pass: 3 read: 93751 write: 93750
+pSize:  1024  B:  5000
+pass: 3 read: 93751 write: 93750
+pSize:  1024  B:  10000
+pass: 3 read: 93751 write: 93750
+pSize:  2048  B:  3
+pass: 15 read: 234376 write: 234375
+pSize:  2048  B:  10
+pass: 6 read: 93751 write: 93750
+pSize:  2048  B:  20
+pass: 5 read: 78126 write: 78125
+pSize:  2048  B:  50
+pass: 4 read: 62501 write: 62500
+pSize:  2048  B:  100
+pass: 4 read: 62501 write: 62500
+pSize:  2048  B:  200
+pass: 3 read: 46876 write: 46875
+pSize:  2048  B:  500
+pass: 3 read: 46876 write: 46875
+pSize:  2048  B:  1000
+pass: 3 read: 46876 write: 46875
+pSize:  2048  B:  5000
+pass: 3 read: 46876 write: 46875
+pSize:  2048  B:  10000
+pass: 3 read: 46876 write: 46875

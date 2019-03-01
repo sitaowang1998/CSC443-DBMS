@@ -1,4 +1,3 @@
-from multiprocessing.pool import ThreadPool
 import math
 import os
 
@@ -39,8 +38,8 @@ def sortDB(inDB, outDB, B, pSize, field):
                 totalPages = totalPages + 1
             i = i + 1
         # Sort each page
-        p = ThreadPool(4)
-        p.map(lambda index: buffer[index].sort(key=lambda r: r[field]), range(len(buffer)))
+        for b in buffer:
+            b.sort(key=lambda r:r[field])
         # Write buffer pages to output file
         for page in buffer:
             RecordPage.writeRecordPage(tempFile, page, pSize)
@@ -104,9 +103,10 @@ def sortDB(inDB, outDB, B, pSize, field):
     inputFile.close()
     outputFile.close()
     if outputFile.name == 'temp':
-        os.remove('sort.db')
-        os.rename('temp', 'sort.db')
-    os.remove('temp')
+        os.remove(outDB)
+        os.rename('temp', outDB)
+    else:
+        os.remove('temp')
     return passNum
 
 
