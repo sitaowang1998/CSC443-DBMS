@@ -3,7 +3,8 @@ import hashlib
 
 from record import Record
 from page import Page, RecordPage
-from staticHash import StaticHashPage, StaticHashTable
+from staticHash import StaticHashTable
+from extendibleHash import ExtendibleHashTable
 
 
 def hashDB(inDB, indexFile, indexType, buckets, pSize, field):
@@ -26,9 +27,11 @@ def hashDB(inDB, indexFile, indexType, buckets, pSize, field):
     
     inFile.close()
     
-    hashTable.writeTalbe(indexFile)
+    hashTable.writeTable(indexFile)
+    # hashTable.printTable()
 
 
 
 if __name__ == "__main__":
     hashDB('names.db', 'static.db', 0, 64, 1024, 0)
+    # hashDB('names.db', 'extendible.db', 0, 64, 1024)

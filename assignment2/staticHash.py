@@ -47,7 +47,7 @@ class StaticHashTable(HashTable):
         index = md5Hash(key) % self.hashHeader.bNum
         self.buckets[index].insert(key, pNum, offset)
 
-    def writeTalbe(self, indexFile):
+    def writeTable(self, indexFile):
         """
         Write the table into file named indexFile.
         """
