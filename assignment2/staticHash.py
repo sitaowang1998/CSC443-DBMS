@@ -2,7 +2,7 @@ import struct
 import hashlib
 import os
 
-from hashing import HashHeader, HashPage, HashTable
+from hashing import HashHeader, HashPage, HashTable, md5Hash
 
 class StaticHashPage(HashPage):
     """
@@ -44,7 +44,7 @@ class StaticHashTable(HashTable):
         self.buckets = [StaticHashPage(self.hashHeader) for _ in range(bNum)]
     
     def insert(self, key, pNum, offset):
-        index = int.from_bytes(hashlib.md5(key.encode()).digest(), byteorder='big', signed='False') % self.hashHeader.bNum
+        index = md5Hash(key) % self.hashHeader.bNum
         self.buckets[index].insert(key, pNum, offset)
 
     def writeTalbe(self, indexFile):

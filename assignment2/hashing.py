@@ -39,3 +39,6 @@ class HashTable:
     def __init__(self, indexType, pSize, bNum, field):
         self.hashHeader = HashHeader(indexType, pSize, bNum, field)
         self.buckets = []
+
+def md5Hash(key):
+    return int.from_bytes(hashlib.md5(key.encode()).digest(), byteorder='big', signed='False')
