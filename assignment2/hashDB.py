@@ -5,6 +5,7 @@ from record import Record
 from page import Page, RecordPage
 from staticHash import StaticHashTable
 from extendibleHash import ExtendibleHashTable
+from linearHash import LinearHashTable
 
 
 def hashDB(inDB, indexFile, indexType, buckets, pSize, field):
@@ -12,6 +13,8 @@ def hashDB(inDB, indexFile, indexType, buckets, pSize, field):
         hashTable = StaticHashTable(indexType, pSize, buckets, field)
     elif indexType == 1:
         hashTable = ExtendibleHashTable(indexType, pSize, buckets, field)
+    elif indexType == 2:
+        hashTable = LinearHashTable(indexType, pSize, buckets, field)
     else:
         raise IndexError
     
@@ -30,9 +33,10 @@ def hashDB(inDB, indexFile, indexType, buckets, pSize, field):
     inFile.close()
     
     hashTable.writeTable(indexFile)
-
+    # hashTable.printTable()
 
 
 if __name__ == "__main__":
     # hashDB('names.db', 'static.db', 0, 64, 1024, 0)
-    hashDB('names.db', 'extendible.db', 1, 64, 1024, 0)
+    # hashDB('names.db', 'extendible.db', 1, 64, 1024, 0)
+    hashDB('names.db', 'linear.db', 2, 64, 1024, 0)
