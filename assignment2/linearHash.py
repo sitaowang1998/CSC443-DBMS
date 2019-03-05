@@ -81,6 +81,10 @@ class LinearHashTable(HashTable):
         """
         Write the linear hash table into indexFile.
         """
+        overflowCount = 0
+        indexCount = 0
+        pageHist = {}
+
         f = open(indexFile, 'wb')
 
         # Write the first page
@@ -127,7 +131,10 @@ class LinearHashTable(HashTable):
             else:
                 seek_dir_bucket(i)
                 f.write(dirStruct.pack(pNum))
-            
+
+            indexCount += 1
+            pageCount = 0
+
             # Write the buckets
             f.seek(0, os.SEEK_END)
             entryPage =[]
@@ -146,9 +153,38 @@ class LinearHashTable(HashTable):
                     
                     data += bytes(self.hashHeader.pSize - len(data))
                     f.write(data)
+                    pageCount += 1
 
                     entryPage = []
                     pNum += 1
+
+            overflowCount += pageCount - 1
+            if pageCount in pageHist:
+                pageHist[pageCount] += 1
+            else:
+                pageHist[pageCount] = 1
+
+        f.close()
+
+        print("nBucket:", len(self.buckets))
+        print("nIndex:", indexCount)
+        print("nOverflow:", overflowCount)
+        # Print histogram
+        values =  list(pageHist.keys())
+        values.sort()
+        pageMin, pageMax = values[0], values[-1]
+        step = (pageMax - pageMin) // 10
+        i = 0
+        count = 0
+        for value in values:
+            if value <= pageMin + (i + 1) * step:
+                count += pageHist[value]
+            else:
+                print(pageMin + i * step, 'to', str(pageMin + (i + 1) * step)+':',  count)
+                count = 0
+                i += 1
+                count += pageHist[value]
+        print(pageMin + i * step, 'to', str(pageMax)+':', count)
 
     def printTable(self):
         """

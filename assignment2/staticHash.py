@@ -51,6 +51,8 @@ class StaticHashTable(HashTable):
         """
         Write the table into file named indexFile.
         """
+        overflowPageCount = 0
+        pageHist = {}
 
         f = open(indexFile, 'wb')
 
@@ -71,6 +73,8 @@ class StaticHashTable(HashTable):
         # Write all the overflow pages
         for i in range(header.bNum):
             p = self.buckets[i]
+
+            pageCount = 1
 
             if p.overflow != None:
                 f.seek(0, os.SEEK_END)
@@ -93,8 +97,36 @@ class StaticHashTable(HashTable):
                     page = page + bytearray(header.pSize - len(page))
 
                     f.write(page)
+                    overflowPageCount += 1
+                    pageCount += 1
 
                     pNum = pNum + 1
                     p = p.overflow
-        
+            
+            if pageCount in pageHist:
+                pageHist[pageCount] += 1
+            else:
+                pageHist[pageCount] = 1
+
+        # Print the info
+        print("nBucket:", len(self.buckets))
+        print("nIndex:", len(self.buckets))
+        print("nOverflow:", overflowPageCount)
+        # Print histogram
+        values =  list(pageHist.keys())
+        values.sort()
+        pageMin, pageMax = values[0], values[-1]
+        step = (pageMax - pageMin) // 10 + 1
+        i = 0
+        count = 0
+        for value in values:
+            if value <= pageMin + (i + 1) * step:
+                count += pageHist[value]
+            else:
+                print(pageMin + i * step, 'to', str(pageMin + (i + 1) * step)+':',  count)
+                count = 0
+                i += 1
+                count += pageHist[value]
+        print(pageMin + i * step, 'to', str(pageMax)+':', count)
+
         f.close()

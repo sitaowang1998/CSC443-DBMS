@@ -85,6 +85,10 @@ class ExtendibleHashTable(HashTable):
         Write the extendible hash table into file with name indexFile.
         """
 
+        overflowCount = 0
+        indexCount = 0
+        pageHist = {}
+
         f = open(indexFile, 'wb')
 
         # Write the header
@@ -135,11 +139,13 @@ class ExtendibleHashTable(HashTable):
                 seek_dir_bucket(i)
                 f.write(struct.pack('>II', pNum, bucket.depth))
             else:
-                # writeh the directory
+                # write the directory
                 seek_dir_bucket(i)
                 f.write(struct.pack('>II', pNum, bucket.depth))
 
                 bucketPageDict[bucket] = pNum
+                indexCount += 1
+                pageCount = 0
 
                 # write the bucket
                 f.seek(0, os.SEEK_END)
@@ -158,12 +164,40 @@ class ExtendibleHashTable(HashTable):
                             data += entry
                         
                         data += bytes(self.hashHeader.pSize - len(data))
+
                         f.write(data)
+                        pageCount += 1
 
                         entryPage = []
                         pNum += 1
 
+                overflowCount += pageCount - 1
+                if pageCount in pageHist:
+                    pageHist[pageCount] += 1
+                else:
+                    pageHist[pageCount] = 1
+
         f.close()
+
+        print("nBucket:", len(self.buckets))
+        print("nIndex:", indexCount)
+        print("nOverflow:", overflowCount)
+        # Print histogram
+        values =  list(pageHist.keys())
+        values.sort()
+        pageMin, pageMax = values[0], values[-1]
+        step = (pageMax - pageMin) // 10 + 1
+        i = 0
+        count = 0
+        for value in values:
+            if value <= pageMin + (i + 1) * step:
+                count += pageHist[value]
+            else:
+                print(pageMin + i * step, 'to', str(pageMin + (i + 1) * step)+':',  count)
+                count = 0
+                i += 1
+                count += pageHist[value]
+        print(pageMin + i * step, 'to', str(pageMax)+':', count)
 
     
     def printTable(self):

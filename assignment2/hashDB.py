@@ -33,10 +33,16 @@ def hashDB(inDB, indexFile, indexType, buckets, pSize, field):
     inFile.close()
     
     hashTable.writeTable(indexFile)
-    # hashTable.printTable()
 
 
 if __name__ == "__main__":
-    # hashDB('names.db', 'static.db', 0, 64, 1024, 0)
-    # hashDB('names.db', 'extendible.db', 1, 64, 1024, 0)
+    print("Static Hashing")
+    hashDB('names.db', 'static.db', 0, 64, 1024, 0)
+    print()
+    print("=" * 20)
+    print("Extendible Hashing")
+    hashDB('names.db', 'extendible.db', 1, 64, 1024, 0)
+    print()
+    print("=" * 20)
+    print("Linear Hashing")
     hashDB('names.db', 'linear.db', 2, 64, 1024, 0)
