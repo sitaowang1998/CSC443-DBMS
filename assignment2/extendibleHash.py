@@ -6,16 +6,6 @@ import math
 from hashing import HashHeader, HashPage, HashTable, md5Hash
 
 
-class ExtendibleHashDirectory:
-    """
-    A directory for an extendible hash table.
-    """
-
-    def __init__(self, hashHeader):
-        self.hashHeader = hashHeader
-        self.depth = int(math.log(hashHeader.bNum) / math.log(2))
-        self.buckets = []
-
 class ExtendibleHashBucket:
     """
     A hash bucket for extendible hash table.
@@ -25,7 +15,7 @@ class ExtendibleHashBucket:
         self.hashHeader = hashHeader
         self.depth = int(math.log(hashHeader.bNum) / math.log(2))
         self.entries = []
-        self.entryPerPage = int((hashHeader.pSize - 8) / hashHeader.entryStruct.size)
+        self.entryPerPage = int((hashHeader.pSize - 4) / hashHeader.entryStruct.size)
     
     def insert(self, key, pNum, offset):
         """
@@ -173,6 +163,7 @@ class ExtendibleHashTable(HashTable):
                         entryPage = []
                         pNum += 1
 
+        f.close()
 
     
     def printTable(self):
