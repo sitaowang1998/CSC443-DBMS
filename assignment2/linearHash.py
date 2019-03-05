@@ -177,7 +177,7 @@ class LinearHashTable(HashTable):
         i = 0
         count = 0
         for value in values:
-            if value <= pageMin + (i + 1) * step:
+            if value <= pageMin + (i + 1) * step or i >= 9:
                 count += pageHist[value]
             else:
                 print(pageMin + i * step, 'to', str(pageMin + (i + 1) * step)+':',  count)
