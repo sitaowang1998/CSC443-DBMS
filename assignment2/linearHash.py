@@ -167,11 +167,9 @@ class LinearHashTable(HashTable):
         print("nBucket:", len(self.buckets))
         print("nIndex:", indexCount)
         print("nOverflow:", overflowCount)
-        for i in pageCount:
-            if i > 10:
-                print(i)
-        plt.hist(pageCount, bins=10)
+        plt.hist(pageHist, bins=10)
         plt.savefig(indexFile[:-2]+'png')
+        plt.close('all')
 
     def printTable(self):
         """

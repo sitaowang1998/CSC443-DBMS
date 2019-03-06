@@ -112,5 +112,6 @@ class StaticHashTable(HashTable):
         print("nOverflow:", overflowPageCount)
         plt.hist(pageHist, bins=10)
         plt.savefig(indexFile[:-2]+'png')
+        plt.close('all')
 
         f.close()

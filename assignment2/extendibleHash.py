@@ -182,6 +182,7 @@ class ExtendibleHashTable(HashTable):
         print("nOverflow:", overflowCount)
         plt.hist(pageHist, bins=10)
         plt.savefig(indexFile[:-2]+'png')
+        plt.close('all')
 
     
     def printTable(self):
