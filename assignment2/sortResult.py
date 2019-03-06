@@ -15,9 +15,9 @@ while True:
     if line1 == '':
         break
     line2 = f.readline()
-    pSize = line1.split(' ')[1]
-    B = line1.split(' ')[3]
-    page = line2.split(' ')[5]
+    pSize = int(line1.split(' ')[1])
+    B = int(line1.strip('\n').split(' ')[4])
+    page = int(line2.split(' ')[5])
 
     if pSize == 512:
         p512B.append(B)
@@ -34,7 +34,10 @@ while True:
 
 f.close()
 
-plt.plot(p512B, p512P)
-plt.plot(p1024B, p1024P)
-plt.plot(p2048B, p2048P)
+fig, ax = plt.subplots()
+ax.plot(p512B, p512P, 'r', label='512')
+ax.plot(p1024B, p1024P, 'g', label='1024')
+ax.plot(p2048B, p2048P, 'b', label='2048')
+ax.semilogx()
+ax.legend(loc='upper center')
 plt.savefig('sort_result.png')
