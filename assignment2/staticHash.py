@@ -1,6 +1,7 @@
 import struct
 import hashlib
 import os
+import matplotlib.pyplot as plt
 
 from hashing import HashHeader, HashPage, HashTable, md5Hash
 
@@ -52,7 +53,7 @@ class StaticHashTable(HashTable):
         Write the table into file named indexFile.
         """
         overflowPageCount = 0
-        pageHist = {}
+        pageHist = []
 
         f = open(indexFile, 'wb')
 
@@ -103,30 +104,13 @@ class StaticHashTable(HashTable):
                     pNum = pNum + 1
                     p = p.overflow
             
-            if pageCount in pageHist:
-                pageHist[pageCount] += 1
-            else:
-                pageHist[pageCount] = 1
+            pageHist.append(pageCount)
 
         # Print the info
         print("nBucket:", len(self.buckets))
         print("nIndex:", len(self.buckets))
         print("nOverflow:", overflowPageCount)
-        # Print histogram
-        values =  list(pageHist.keys())
-        values.sort()
-        pageMin, pageMax = values[0], values[-1]
-        step = (pageMax - pageMin) // 10 + 1
-        i = 0
-        count = 0
-        for value in values:
-            if value <= pageMin + (i + 1) * step:
-                count += pageHist[value]
-            else:
-                print(pageMin + i * step, 'to', str(pageMin + (i + 1) * step)+':',  count)
-                count = 0
-                i += 1
-                count += pageHist[value]
-        print(pageMin + i * step, 'to', str(pageMax)+':', count)
+        plt.hist(pageHist, bins=10)
+        plt.savefig(indexFile[:-2]+'png')
 
         f.close()

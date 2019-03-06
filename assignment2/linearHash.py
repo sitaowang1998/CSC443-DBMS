@@ -2,6 +2,7 @@ import struct
 import hashlib
 import os
 import math
+import matplotlib.pyplot as plt
 
 from hashing import HashHeader, HashPage, HashTable, md5Hash
 
@@ -83,7 +84,7 @@ class LinearHashTable(HashTable):
         """
         overflowCount = 0
         indexCount = 0
-        pageHist = {}
+        pageHist = []
 
         f = open(indexFile, 'wb')
 
@@ -159,32 +160,18 @@ class LinearHashTable(HashTable):
                     pNum += 1
 
             overflowCount += pageCount - 1
-            if pageCount in pageHist:
-                pageHist[pageCount] += 1
-            else:
-                pageHist[pageCount] = 1
+            pageHist.append(pageCount)
 
         f.close()
 
         print("nBucket:", len(self.buckets))
         print("nIndex:", indexCount)
         print("nOverflow:", overflowCount)
-        # Print histogram
-        values =  list(pageHist.keys())
-        values.sort()
-        pageMin, pageMax = values[0], values[-1]
-        step = (pageMax - pageMin) // 10
-        i = 0
-        count = 0
-        for value in values:
-            if value <= pageMin + (i + 1) * step or i >= 9:
-                count += pageHist[value]
-            else:
-                print(pageMin + i * step, 'to', str(pageMin + (i + 1) * step)+':',  count)
-                count = 0
-                i += 1
-                count += pageHist[value]
-        print(pageMin + i * step, 'to', str(pageMax)+':', count)
+        for i in pageCount:
+            if i > 10:
+                print(i)
+        plt.hist(pageCount, bins=10)
+        plt.savefig(indexFile[:-2]+'png')
 
     def printTable(self):
         """
